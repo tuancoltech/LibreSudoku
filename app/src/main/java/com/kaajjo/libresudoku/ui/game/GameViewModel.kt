@@ -120,6 +120,7 @@ class GameViewModel @Inject constructor(
                 size = gameBoard.size
                 undoRedoManager = UndoRedoManager(GameState(gameBoard, notes))
                 remainingUsesList = countRemainingUses(gameBoard)
+                recomputeCompletedUnitCells(gameBoard)
             }
             saveGame()
         }
@@ -194,6 +195,7 @@ class GameViewModel @Inject constructor(
     var gameBoard by mutableStateOf(List(9) { row -> List(9) { col -> Cell(row, col, 0) } })
     var solvedBoard = emptyList<List<Cell>>()
     var cages by mutableStateOf(emptyList<Cage>())
+    var completedUnitCells by mutableStateOf<Set<Pair<Int, Int>>>(emptySet())
 
     var currCell by mutableStateOf(Cell(-1, -1, 0))
     private var undoRedoManager = UndoRedoManager(GameState(gameBoard, notes))
@@ -320,6 +322,7 @@ class GameViewModel @Inject constructor(
         }
 
         gameCompleted = isCompleted(new)
+        recomputeCompletedUnitCells(new)
 
         if (autoEraseNotes.value) {
             notes = autoEraseNotes(new, currCell)
@@ -336,8 +339,74 @@ class GameViewModel @Inject constructor(
         return uses
     }
 
+    private fun isBlockedCompletedCell(row: Int, col: Int): Boolean {
+        return completedUnitCells.contains(row to col)
+    }
+
+    private fun recomputeCompletedUnitCells(board: List<List<Cell>> = gameBoard) {
+        if (solvedBoard.isEmpty() || !this::boardEntity.isInitialized) {
+            completedUnitCells = emptySet()
+            return
+        }
+
+        val boardSize = board.size
+        val sectionHeight = boardEntity.type.sectionHeight
+        val sectionWidth = boardEntity.type.sectionWidth
+        val completed = mutableSetOf<Pair<Int, Int>>()
+
+        for (row in 0 until boardSize) {
+            val rowCompleted = (0 until boardSize).all { col ->
+                board[row][col].value != 0 && board[row][col].value == solvedBoard[row][col].value
+            }
+            if (rowCompleted) {
+                for (col in 0 until boardSize) {
+                    completed.add(row to col)
+                }
+            }
+        }
+
+        for (col in 0 until boardSize) {
+            val colCompleted = (0 until boardSize).all { row ->
+                board[row][col].value != 0 && board[row][col].value == solvedBoard[row][col].value
+            }
+            if (colCompleted) {
+                for (row in 0 until boardSize) {
+                    completed.add(row to col)
+                }
+            }
+        }
+
+        for (startRow in 0 until boardSize step sectionHeight) {
+            for (startCol in 0 until boardSize step sectionWidth) {
+                var boxCompleted = true
+                for (row in startRow until startRow + sectionHeight) {
+                    for (col in startCol until startCol + sectionWidth) {
+                        if (board[row][col].value == 0 || board[row][col].value != solvedBoard[row][col].value) {
+                            boxCompleted = false
+                        }
+                    }
+                }
+                if (boxCompleted) {
+                    for (row in startRow until startRow + sectionHeight) {
+                        for (col in startCol until startCol + sectionWidth) {
+                            completed.add(row to col)
+                        }
+                    }
+                }
+            }
+        }
+
+        completedUnitCells = completed
+        if (currCell.row >= 0 && currCell.col >= 0 && isBlockedCompletedCell(currCell.row, currCell.col)) {
+            currCell = Cell(-1, -1, digitFirstNumber)
+        }
+    }
+
     fun processInput(cell: Cell, remainingUse: Boolean, longTap: Boolean = false): Boolean {
         if (gamePlaying) {
+            if (isBlockedCompletedCell(cell.row, cell.col)) {
+                return false
+            }
             currCell =
                 if (currCell.row == cell.row && currCell.col == cell.col && digitFirstNumber == 0) {
                     Cell(-1, -1)
@@ -345,7 +414,11 @@ class GameViewModel @Inject constructor(
                     cell
                 }
 
-            if (currCell.row >= 0 && currCell.col >= 0 && !gameBoard[currCell.row][currCell.col].locked) {
+            if (currCell.row >= 0 &&
+                currCell.col >= 0 &&
+                !gameBoard[currCell.row][currCell.col].locked &&
+                !isBlockedCompletedCell(currCell.row, currCell.col)
+            ) {
                 if ((inputMethod.value == 1 || overrideInputMethodDF) && digitFirstNumber > 0) {
                     if (!longTap) {
                         if ((remainingUsesList.size >= digitFirstNumber && remainingUsesList[digitFirstNumber - 1] > 0) || !remainingUse) {
@@ -379,7 +452,12 @@ class GameViewModel @Inject constructor(
     fun processInputKeyboard(number: Int, longTap: Boolean = false) {
         if (gamePlaying) {
             if (!longTap) {
-                if (inputMethod.value == 0 && !currCell.locked && currCell.col >= 0 && currCell.row >= 0) {
+                if (inputMethod.value == 0 &&
+                    !currCell.locked &&
+                    currCell.col >= 0 &&
+                    currCell.row >= 0 &&
+                    !isBlockedCompletedCell(currCell.row, currCell.col)
+                ) {
                     overrideInputMethodDF = false
                     digitFirstNumber = 0
                     processNumberInput(number)
@@ -401,7 +479,12 @@ class GameViewModel @Inject constructor(
 
 
     fun processNumberInput(number: Int) {
-        if (currCell.row >= 0 && currCell.col >= 0 && gamePlaying && !currCell.locked) {
+        if (currCell.row >= 0 &&
+            currCell.col >= 0 &&
+            gamePlaying &&
+            !currCell.locked &&
+            !isBlockedCompletedCell(currCell.row, currCell.col)
+        ) {
             if (!notesToggled) {
                 // Clear all note to set a number
                 notes = clearNotesAtCell(notes, currCell.row, currCell.col)
@@ -470,6 +553,7 @@ class GameViewModel @Inject constructor(
                             notes = it.notes
                         }
                         checkMistakesAll()
+                        recomputeCompletedUnitCells(gameBoard)
                     }
                     remainingUsesList = countRemainingUses(gameBoard)
                 }
@@ -481,6 +565,7 @@ class GameViewModel @Inject constructor(
                             notes = it.notes
                         }
                         checkMistakesAll()
+                        recomputeCompletedUnitCells(gameBoard)
                     }
                     remainingUsesList = countRemainingUses(gameBoard)
                 }
@@ -499,7 +584,11 @@ class GameViewModel @Inject constructor(
                         toggleEraseButton()
                         return
                     }
-                    if (currCell.row >= 0 && currCell.col >= 0 && !currCell.locked) {
+                    if (currCell.row >= 0 &&
+                        currCell.col >= 0 &&
+                        !currCell.locked &&
+                        !isBlockedCompletedCell(currCell.row, currCell.col)
+                    ) {
                         val prevValue = gameBoard[currCell.row][currCell.col].value
                         val notesInCell =
                             notes.count { note -> note.row == currCell.row && note.col == currCell.col }
@@ -516,7 +605,11 @@ class GameViewModel @Inject constructor(
 
     private fun useHint() {
         if (solvedBoard.isEmpty()) solveBoard()
-        if (currCell.row >= 0 && currCell.col >= 0 && !currCell.locked) {
+        if (currCell.row >= 0 &&
+            currCell.col >= 0 &&
+            !currCell.locked &&
+            !isBlockedCompletedCell(currCell.row, currCell.col)
+        ) {
             notes = clearNotesAtCell(notes, currCell.row, currCell.col)
             gameBoard = setValueCell(solvedBoard[currCell.row][currCell.col].value)
 
@@ -545,6 +638,7 @@ class GameViewModel @Inject constructor(
 
         // init a new game with initial board
         gameBoard = initialBoard.map { items -> items.map { item -> item.copy() } }
+        recomputeCompletedUnitCells(gameBoard)
 
         remainingUsesList = countRemainingUses(gameBoard)
 
@@ -664,6 +758,7 @@ class GameViewModel @Inject constructor(
                     }
                 }
             }
+            recomputeCompletedUnitCells(gameBoard)
         }
     }
 
@@ -792,6 +887,7 @@ class GameViewModel @Inject constructor(
             }
         }
         gameBoard = new
+        recomputeCompletedUnitCells(gameBoard)
     }
 
     fun getAdvancedHint() {

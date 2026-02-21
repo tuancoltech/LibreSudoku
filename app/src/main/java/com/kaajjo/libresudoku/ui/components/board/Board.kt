@@ -42,6 +42,7 @@ import com.kaajjo.libresudoku.core.qqwing.Cage
 import com.kaajjo.libresudoku.core.qqwing.GameType
 import com.kaajjo.libresudoku.core.utils.SudokuParser
 import com.kaajjo.libresudoku.ui.theme.BoardColors
+import com.kaajjo.libresudoku.ui.theme.ColorUtils.harmonizeWithPrimary
 import com.kaajjo.libresudoku.ui.theme.LibreSudokuTheme
 import com.kaajjo.libresudoku.ui.theme.SudokuBoardColors
 import com.kaajjo.libresudoku.ui.theme.SudokuBoardColorsImpl
@@ -108,7 +109,8 @@ fun Board(
     zoomable: Boolean = false,
     boardColors: SudokuBoardColors = LocalBoardColors.current,
     crossHighlight: Boolean = false,
-    cages: List<Cage> = emptyList()
+    cages: List<Cage> = emptyList(),
+    completedCells: Set<Pair<Int, Int>> = emptySet()
 ) {
     BoxWithConstraints(
         modifier = modifier
@@ -133,6 +135,7 @@ fun Board(
 
         // highlight (cells)
         val highlightColor = boardColors.highlightColor
+        val completedUnitColor = Color(0xFF64B5F6).harmonizeWithPrimary().copy(alpha = 0.22f)
 
         val vertThick by remember(size) { mutableIntStateOf(floor(sqrt(size.toFloat())).toInt()) }
         val horThick by remember(size) { mutableIntStateOf(ceil(sqrt(size.toFloat())).toInt()) }
@@ -263,6 +266,7 @@ fun Board(
                             floor((totalOffset.x) / cellSize)
                                 .toInt()
                                 .coerceIn(board.indices)
+                        if (completedCells.contains(row to column)) return@detectTapGestures
                         onClick(board[row][column])
                     },
                     onLongPress = {
@@ -270,6 +274,7 @@ fun Board(
                             val totalOffset = it / zoom + offset
                             val row = floor((totalOffset.y) / cellSize).toInt()
                             val column = floor((totalOffset.x) / cellSize).toInt()
+                            if (completedCells.contains(row to column)) return@detectTapGestures
                             onLongClick(board[row][column])
                         }
                     }
@@ -313,6 +318,23 @@ fun Board(
             modifier = if (zoomable) boardModifier.then(zoomModifier) else boardModifier
         ) {
             val cornerRadius = CornerRadius(15f, 15f)
+
+            completedCells.forEach { (row, col) ->
+                drawRoundCell(
+                    row = row,
+                    col = col,
+                    gameSize = size,
+                    rect = Rect(
+                        offset = Offset(
+                            x = col * cellSize,
+                            y = row * cellSize
+                        ),
+                        size = Size(cellSize, cellSize)
+                    ),
+                    color = completedUnitColor,
+                    cornerRadius = cornerRadius
+                )
+            }
 
             if (selectedCell.row >= 0 && selectedCell.col >= 0) {
                 // current cell
