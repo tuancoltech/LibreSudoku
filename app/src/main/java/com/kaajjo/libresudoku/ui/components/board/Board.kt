@@ -47,8 +47,10 @@ import com.kaajjo.libresudoku.ui.theme.LibreSudokuTheme
 import com.kaajjo.libresudoku.ui.theme.SudokuBoardColors
 import com.kaajjo.libresudoku.ui.theme.SudokuBoardColorsImpl
 import com.kaajjo.libresudoku.ui.util.LightDarkPreview
+import kotlin.math.PI
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -110,7 +112,9 @@ fun Board(
     boardColors: SudokuBoardColors = LocalBoardColors.current,
     crossHighlight: Boolean = false,
     cages: List<Cage> = emptyList(),
-    completedCells: Set<Pair<Int, Int>> = emptySet()
+    completedCells: Set<Pair<Int, Int>> = emptySet(),
+    completionAnimationCells: Set<Pair<Int, Int>> = emptySet(),
+    completionAnimationProgress: Float = 0f
 ) {
     BoxWithConstraints(
         modifier = modifier
@@ -334,6 +338,29 @@ fun Board(
                     color = completedUnitColor,
                     cornerRadius = cornerRadius
                 )
+            }
+            if (completionAnimationCells.isNotEmpty() && completionAnimationProgress > 0f) {
+                val pulse = sin(completionAnimationProgress * PI).toFloat().coerceIn(0f, 1f)
+                val growth = cellSize * 0.08f * pulse
+                completionAnimationCells.forEach { (row, col) ->
+                    drawRoundCell(
+                        row = row,
+                        col = col,
+                        gameSize = size,
+                        rect = Rect(
+                            offset = Offset(
+                                x = col * cellSize - growth,
+                                y = row * cellSize - growth
+                            ),
+                            size = Size(
+                                width = cellSize + (growth * 2f),
+                                height = cellSize + (growth * 2f)
+                            )
+                        ),
+                        color = completedUnitColor.copy(alpha = (0.22f + (0.26f * pulse)).coerceAtMost(0.55f)),
+                        cornerRadius = cornerRadius
+                    )
+                }
             }
 
             if (selectedCell.row >= 0 && selectedCell.col >= 0) {

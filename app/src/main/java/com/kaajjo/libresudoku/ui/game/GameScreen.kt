@@ -7,6 +7,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -160,6 +162,32 @@ fun GameScreen(
         targetValue = if (viewModel.gamePlaying || viewModel.endGame) 1f else 0.90f,
         label = "Game board scale"
     )
+    val completionSfxPlayer = rememberCompletionSfxPlayer()
+    var completionAnimationCells by remember { mutableStateOf<Set<Pair<Int, Int>>>(emptySet()) }
+    val completionAnimationProgress = remember { Animatable(0f) }
+
+    LaunchedEffect(viewModel.completedUnitFxNonce) {
+        val newlyCompletedCells = viewModel.completedUnitFxCells
+        if (newlyCompletedCells.isEmpty()) return@LaunchedEffect
+
+        completionAnimationCells = newlyCompletedCells
+        completionSfxPlayer.play()
+        completionAnimationProgress.snapTo(0f)
+        completionAnimationProgress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = /*220*/650, easing = LinearEasing)
+        )
+        completionAnimationProgress.animateTo(
+            targetValue = 0f,
+            animationSpec = tween(durationMillis = /*100*/350, easing = LinearEasing)
+        )
+        completionAnimationCells = emptySet()
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            completionSfxPlayer.release()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -372,7 +400,9 @@ fun GameScreen(
                     crossHighlight = crossHighlight,
                     cages = viewModel.cages,
                     cellsToHighlight = if (advancedHintMode && advancedHintData != null) advancedHintData!!.helpCells + advancedHintData!!.targetCell else null,
-                    completedCells = viewModel.completedUnitCells
+                    completedCells = viewModel.completedUnitCells,
+                    completionAnimationCells = completionAnimationCells,
+                    completionAnimationProgress = completionAnimationProgress.value
                 )
             }
 
