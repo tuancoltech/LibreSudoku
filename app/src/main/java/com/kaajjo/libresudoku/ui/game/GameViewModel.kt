@@ -18,9 +18,13 @@ import com.kaajjo.libresudoku.core.qqwing.QQWingController
 import com.kaajjo.libresudoku.core.qqwing.advanced_hint.AdvancedHint
 import com.kaajjo.libresudoku.core.qqwing.advanced_hint.AdvancedHintData
 import com.kaajjo.libresudoku.core.utils.GameState
+import com.kaajjo.libresudoku.core.utils.CompletedUnits
 import com.kaajjo.libresudoku.core.utils.SudokuParser
 import com.kaajjo.libresudoku.core.utils.SudokuUtils
 import com.kaajjo.libresudoku.core.utils.UndoRedoManager
+import com.kaajjo.libresudoku.core.utils.completionFxCellsForTransition
+import com.kaajjo.libresudoku.core.utils.completedCellsForUnits
+import com.kaajjo.libresudoku.core.utils.computeCompletedUnits
 import com.kaajjo.libresudoku.core.utils.toFormattedString
 import com.kaajjo.libresudoku.data.database.model.Record
 import com.kaajjo.libresudoku.data.database.model.SavedGame
@@ -120,7 +124,7 @@ class GameViewModel @Inject constructor(
                 size = gameBoard.size
                 undoRedoManager = UndoRedoManager(GameState(gameBoard, notes))
                 remainingUsesList = countRemainingUses(gameBoard)
-                recomputeCompletedUnitCells(gameBoard)
+                recomputeCompletedUnitCells(gameBoard, emitFx = false)
             }
             saveGame()
         }
@@ -196,6 +200,10 @@ class GameViewModel @Inject constructor(
     var solvedBoard = emptyList<List<Cell>>()
     var cages by mutableStateOf(emptyList<Cage>())
     var completedUnitCells by mutableStateOf<Set<Pair<Int, Int>>>(emptySet())
+    var completedUnitFxCells by mutableStateOf<Set<Pair<Int, Int>>>(emptySet())
+    var completedUnitFxNonce by mutableIntStateOf(0)
+    private var completedUnitsState = CompletedUnits()
+    private var completedUnitsInitialized = false
 
     var currCell by mutableStateOf(Cell(-1, -1, 0))
     private var undoRedoManager = UndoRedoManager(GameState(gameBoard, notes))
@@ -343,60 +351,49 @@ class GameViewModel @Inject constructor(
         return completedUnitCells.contains(row to col)
     }
 
-    private fun recomputeCompletedUnitCells(board: List<List<Cell>> = gameBoard) {
+    private fun recomputeCompletedUnitCells(
+        board: List<List<Cell>> = gameBoard,
+        emitFx: Boolean = true
+    ) {
         if (solvedBoard.isEmpty() || !this::boardEntity.isInitialized) {
             completedUnitCells = emptySet()
+            completedUnitsState = CompletedUnits()
+            completedUnitsInitialized = false
             return
         }
 
         val boardSize = board.size
         val sectionHeight = boardEntity.type.sectionHeight
         val sectionWidth = boardEntity.type.sectionWidth
-        val completed = mutableSetOf<Pair<Int, Int>>()
+        val currentUnits = computeCompletedUnits(
+            board = board,
+            solvedBoard = solvedBoard,
+            sectionHeight = sectionHeight,
+            sectionWidth = sectionWidth
+        )
+        completedUnitCells = completedCellsForUnits(
+            units = currentUnits,
+            size = boardSize,
+            sectionHeight = sectionHeight,
+            sectionWidth = sectionWidth
+        )
 
-        for (row in 0 until boardSize) {
-            val rowCompleted = (0 until boardSize).all { col ->
-                board[row][col].value != 0 && board[row][col].value == solvedBoard[row][col].value
-            }
-            if (rowCompleted) {
-                for (col in 0 until boardSize) {
-                    completed.add(row to col)
-                }
+        if (emitFx && completedUnitsInitialized) {
+            val fxCells = completionFxCellsForTransition(
+                previousUnits = completedUnitsState,
+                currentUnits = currentUnits,
+                size = boardSize,
+                sectionHeight = sectionHeight,
+                sectionWidth = sectionWidth
+            )
+            if (fxCells.isNotEmpty()) {
+                completedUnitFxCells = fxCells
+                completedUnitFxNonce++
             }
         }
+        completedUnitsState = currentUnits
+        completedUnitsInitialized = true
 
-        for (col in 0 until boardSize) {
-            val colCompleted = (0 until boardSize).all { row ->
-                board[row][col].value != 0 && board[row][col].value == solvedBoard[row][col].value
-            }
-            if (colCompleted) {
-                for (row in 0 until boardSize) {
-                    completed.add(row to col)
-                }
-            }
-        }
-
-        for (startRow in 0 until boardSize step sectionHeight) {
-            for (startCol in 0 until boardSize step sectionWidth) {
-                var boxCompleted = true
-                for (row in startRow until startRow + sectionHeight) {
-                    for (col in startCol until startCol + sectionWidth) {
-                        if (board[row][col].value == 0 || board[row][col].value != solvedBoard[row][col].value) {
-                            boxCompleted = false
-                        }
-                    }
-                }
-                if (boxCompleted) {
-                    for (row in startRow until startRow + sectionHeight) {
-                        for (col in startCol until startCol + sectionWidth) {
-                            completed.add(row to col)
-                        }
-                    }
-                }
-            }
-        }
-
-        completedUnitCells = completed
         if (currCell.row >= 0 && currCell.col >= 0 && isBlockedCompletedCell(currCell.row, currCell.col)) {
             currCell = Cell(-1, -1, digitFirstNumber)
         }
@@ -638,7 +635,7 @@ class GameViewModel @Inject constructor(
 
         // init a new game with initial board
         gameBoard = initialBoard.map { items -> items.map { item -> item.copy() } }
-        recomputeCompletedUnitCells(gameBoard)
+        recomputeCompletedUnitCells(gameBoard, emitFx = false)
 
         remainingUsesList = countRemainingUses(gameBoard)
 
@@ -758,7 +755,7 @@ class GameViewModel @Inject constructor(
                     }
                 }
             }
-            recomputeCompletedUnitCells(gameBoard)
+            recomputeCompletedUnitCells(gameBoard, emitFx = false)
         }
     }
 
@@ -887,7 +884,7 @@ class GameViewModel @Inject constructor(
             }
         }
         gameBoard = new
-        recomputeCompletedUnitCells(gameBoard)
+        recomputeCompletedUnitCells(gameBoard, emitFx = false)
     }
 
     fun getAdvancedHint() {
