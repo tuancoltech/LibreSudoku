@@ -189,6 +189,86 @@ class CompletedUnitsEvaluatorTest {
         assertTrue(fxCells.size < size * size)
     }
 
+    @Test
+    fun completionFxCellsForTransition_whenNotFinalBoardCompleted_includesAllNewUnitCells() {
+        val size = 9
+        val solved = createSolvedBoard(size)
+        val previous = copyBoard(solved).also { it[0][0].value = 0 }
+        val current = copyBoard(solved).also { it[8][8].value = 0 }
+
+        val previousUnits = computeCompletedUnits(
+            board = previous,
+            solvedBoard = solved,
+            sectionHeight = 3,
+            sectionWidth = 3
+        )
+        val currentUnits = computeCompletedUnits(
+            board = current,
+            solvedBoard = solved,
+            sectionHeight = 3,
+            sectionWidth = 3
+        )
+
+        val newlyCompletedCells = completedCellsForUnits(
+            units = currentUnits - previousUnits,
+            size = size,
+            sectionHeight = 3,
+            sectionWidth = 3
+        )
+
+        val fxCells = completionFxCellsForTransition(
+            previousUnits = previousUnits,
+            currentUnits = currentUnits,
+            size = size,
+            sectionHeight = 3,
+            sectionWidth = 3
+        )
+
+        assertEquals(newlyCompletedCells, fxCells)
+    }
+
+    @Test
+    fun completionFxCellsForTransition_whenUnitsRecomplete_canAnimateAgain() {
+        val size = 9
+        val solved = createSolvedBoard(size)
+        val previous = copyBoard(solved).also {
+            it[0][0].value = 0
+            it[8][8].value = 0
+        }
+        val current = copyBoard(solved).also { it[0][0].value = 0 }
+
+        val previousUnits = computeCompletedUnits(
+            board = previous,
+            solvedBoard = solved,
+            sectionHeight = 3,
+            sectionWidth = 3
+        )
+        val currentUnits = computeCompletedUnits(
+            board = current,
+            solvedBoard = solved,
+            sectionHeight = 3,
+            sectionWidth = 3
+        )
+
+        val newlyCompletedCells = completedCellsForUnits(
+            units = currentUnits - previousUnits,
+            size = size,
+            sectionHeight = 3,
+            sectionWidth = 3
+        )
+
+        val fxCells = completionFxCellsForTransition(
+            previousUnits = previousUnits,
+            currentUnits = currentUnits,
+            size = size,
+            sectionHeight = 3,
+            sectionWidth = 3
+        )
+
+        assertEquals(newlyCompletedCells, fxCells)
+        assertTrue(fxCells.contains(8 to 8))
+    }
+
     private fun createSolvedBoard(size: Int): List<List<Cell>> {
         return List(size) { row ->
             List(size) { col ->
