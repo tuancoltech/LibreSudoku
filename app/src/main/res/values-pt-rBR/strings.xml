@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">LibreSudoku</string>
+    <string name="app_name" translatable="false">Sudoku</string>
     <string name="nav_bar_statistics">Estatísticas</string>
     <string name="nav_bar_more">Mais</string>
     <string name="nav_bar_home">Início</string>
@@ -335,4 +335,5 @@
     <string name="theme_orange">Laranja</string>
     <string name="onboard_restore_backup">Restaurar backup</string>
     <string name="onboard_restore_backup_description">Você já tem um backup? Restaure-o agora</string>
+    <string name="explore_google_play_apps">Explore mais jogos e apps</string>
 </resources>

@@ -349,4 +349,5 @@
     <string name="pref_board_theme_summary">एक्सेंट रंग, स्थिति रेखाएँ, फ़ॉन्ट आकार लागू करें…</string>
     <string name="action_generate">उत्पन्न करें</string>
     <string name="generating_number_of">%1$s/%2$s उत्पन्न किया जा रहा है</string>
+    <string name="explore_google_play_apps">और गेम और ऐप्स खोजें</string>
 </resources>

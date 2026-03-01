@@ -323,4 +323,5 @@
     <string name="pref_cross_highlight_subtitle">在數獨板上突顯部分九宮格</string>
     <string name="advanced_hint_no_hint_title">沒有提示</string>
     <string name="font_size_automatic">自動</string>
+    <string name="explore_google_play_apps">探索更多遊戲與應用程式</string>
 </resources>

@@ -408,4 +408,5 @@
     <string name="check_for_update_latest_summary">Так держать!</string>
     <string name="update_channel">Канал обновлений</string>
     <string name="font_size_automatic">Автоматически</string>
+    <string name="explore_google_play_apps">Откройте для себя больше игр и приложений</string>
 </resources>

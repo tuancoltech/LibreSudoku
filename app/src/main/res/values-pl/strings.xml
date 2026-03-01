@@ -330,4 +330,5 @@
         <item quantity="many">Ostatnie %1$d gier</item>
         <item quantity="other">Ostatnie %1$d gier</item>
     </plurals>
+    <string name="explore_google_play_apps">Odkryj więcej gier i aplikacji</string>
 </resources>

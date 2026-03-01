@@ -307,4 +307,5 @@
     <string name="action_grant">Χορήγηση άδειας</string>
     <string name="autobackup_never">Ποτέ</string>
     <string name="restore_existing_data_alert">Τα υπάρχοντα δεδομένα θα διαγραφούν!</string>
+    <string name="explore_google_play_apps">Εξερευνήστε περισσότερα παιχνίδια και εφαρμογές</string>
 </resources>

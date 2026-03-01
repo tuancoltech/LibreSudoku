@@ -374,4 +374,5 @@
         <item quantity="one">Siste spill</item>
         <item quantity="other">Siste %1$d spill</item>
     </plurals>
+    <string name="explore_google_play_apps">Utforsk flere spill og apper</string>
 </resources>

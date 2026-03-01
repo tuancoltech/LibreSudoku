@@ -370,4 +370,5 @@
     <string name="perf_assistance_summary">Controllo errori, evidenzia valori uguali, usi rimanenti…</string>
     <string name="advanced_hint_summary">Un sistema di suggerimenti sperimentale</string>
     <string name="update_channel_stable">Stabile</string>
+    <string name="explore_google_play_apps">Scopri altri giochi e app</string>
 </resources>
