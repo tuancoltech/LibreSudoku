@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.serialization)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -124,4 +126,8 @@ dependencies {
 
     implementation(libs.okhttp)
     implementation(libs.composeMarkdown)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
+
 }

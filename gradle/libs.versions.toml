@@ -29,6 +29,9 @@ foundationAndroid = "1.7.5"
 graphicsShape = "1.0.1"
 okhttp = "5.0.0-alpha.14"
 composeMarkdown = "0.5.4"
+google-services = "4.4.4"
+firebase-bom = "34.10.0"
+crashlytics = "3.0.6"
 
 [libraries]
 # Android App
@@ -38,6 +41,9 @@ core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx
 documentFile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentFile"}
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime"}
 lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle-runtime"}
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 
 # Compose
 ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
@@ -100,3 +106,5 @@ aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "abo
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }

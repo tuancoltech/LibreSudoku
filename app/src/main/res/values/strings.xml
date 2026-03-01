@@ -345,6 +345,7 @@
         <item quantity="other">Last %1$d games</item>
     </plurals>
     <string name="telegram" translatable="false">Telegram</string>
+    <string name="telegram_link">Join us on Telegram</string>
     <string name="google_play" translatable="false">Google Play</string>
     <string name="explore_google_play_apps">Explore more games &amp; apps</string>
     <string name="donation_title">Donation</string>
