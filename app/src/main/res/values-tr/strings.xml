@@ -375,4 +375,5 @@
     <string name="check_for_update_latest_summary">Böyle devam et!</string>
     <string name="auto_updates_summary">Güncellemeleri otomatik olarak kontrol et</string>
     <string name="hint_full_house_group_detail">%1$s Hücresi bu kutudaki son boş hücre olduğundan, onu %2$s ile doldurabilrsin</string>
+    <string name="explore_google_play_apps">Daha fazla oyun ve uygulama keşfedin</string>
 </resources>

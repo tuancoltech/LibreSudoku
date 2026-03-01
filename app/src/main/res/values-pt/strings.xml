@@ -311,4 +311,5 @@
     <string name="action_grant">Conceder</string>
     <string name="autobackup_never">Nunca</string>
     <string name="restore_existing_data_alert">Dados existentes serão deletados!</string>
+    <string name="explore_google_play_apps">Explore mais jogos e apps</string>
 </resources>

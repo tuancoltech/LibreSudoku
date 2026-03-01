@@ -45,20 +45,20 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.kaajjo.libresudoku.BuildConfig
 import com.kaajjo.libresudoku.R
-import com.kaajjo.libresudoku.core.CARD_MIR
 import com.kaajjo.libresudoku.core.CRYPTO_BTC
+import com.kaajjo.libresudoku.core.CRYPTO_ETH
 import com.kaajjo.libresudoku.core.CRYPTO_TON
 import com.kaajjo.libresudoku.core.CRYPTO_USDT_TRC20
 import com.kaajjo.libresudoku.core.GITHUB_REPOSITORY
-import com.kaajjo.libresudoku.core.TELEGRAM_CHANNEL
+import com.kaajjo.libresudoku.core.GOOGLE_PLAY_CHANNEL
 import com.kaajjo.libresudoku.core.WEBLATE_ENGAGE
 import com.kaajjo.libresudoku.destinations.AboutLibrariesScreenDestination
 import com.kaajjo.libresudoku.ui.components.AnimatedNavigation
 import com.kaajjo.libresudoku.ui.theme.ColorUtils.harmonizeWithPrimary
 import com.kaajjo.libresudoku.ui.theme.icons.Bitcoin
-import com.kaajjo.libresudoku.ui.theme.icons.ExteraGram
+import com.kaajjo.libresudoku.ui.theme.icons.Eth
+import com.kaajjo.libresudoku.ui.theme.icons.GooglePlay
 import com.kaajjo.libresudoku.ui.theme.icons.LibreSudokuIconAlt
-import com.kaajjo.libresudoku.ui.theme.icons.Mir
 import com.kaajjo.libresudoku.ui.theme.icons.Ton
 import com.kaajjo.libresudoku.ui.theme.icons.Usdt
 import com.kaajjo.libresudoku.util.FlavorUtil
@@ -163,10 +163,10 @@ fun AboutScreen(
                     onClick = { uriHandler.openUri(WEBLATE_ENGAGE) }
                 )
                 AboutSectionBox(
-                    title = stringResource(R.string.telegram),
-                    subtitle = stringResource(R.string.telegram_link),
-                    icon = Icons.Rounded.ExteraGram,
-                    onClick = { uriHandler.openUri(TELEGRAM_CHANNEL) }
+                    title = stringResource(R.string.google_play),
+                    subtitle = stringResource(R.string.explore_google_play_apps),
+                    icon = Icons.Filled.GooglePlay,
+                    onClick = { uriHandler.openUri(GOOGLE_PLAY_CHANNEL) }
                 )
                 AboutSectionBox(
                     title = stringResource(R.string.libraries_licenses),
@@ -236,11 +236,17 @@ fun AboutScreen(
                             onClick = { clipboardManager.setText(AnnotatedString(text = CRYPTO_USDT_TRC20)) }
                         )
                         DonationItem(
-                            title = stringResource(R.string.card_mir),
-                            information = CARD_MIR,
-                            icon = Icons.Filled.Mir,
-                            onClick = { clipboardManager.setText(AnnotatedString(text = CARD_MIR.filter { it != ' ' })) }
+                            title = stringResource(R.string.crypto_eth),
+                            information = CRYPTO_ETH,
+                            icon = Icons.Filled.Eth,
+                            onClick = { clipboardManager.setText(AnnotatedString(text = CRYPTO_ETH)) }
                         )
+//                        DonationItem(
+//                            title = stringResource(R.string.card_mir),
+//                            information = CARD_MIR,
+//                            icon = Icons.Filled.Mir,
+//                            onClick = { clipboardManager.setText(AnnotatedString(text = CARD_MIR.filter { it != ' ' })) }
+//                        )
                     }
                 }
             }
