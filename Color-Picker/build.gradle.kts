@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.kaajjo.color_picker"
+    namespace = "com.easysoft.color_picker"
     compileSdk = 34
 
     defaultConfig {

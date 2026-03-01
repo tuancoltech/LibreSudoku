@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = "com.kaajjo.libresudoku"
+    namespace = "com.easysoft.sudoku"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.kaajjo.libresudoku"
+        applicationId = "com.easysoft.sudoku"
         minSdk = 26
         targetSdk = 35
         versionCode = 22
