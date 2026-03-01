@@ -18,8 +18,8 @@ android {
         applicationId = "com.easysoft.sudoku"
         minSdk = 26
         targetSdk = 35
-        versionCode = 22
-        versionName = "2.0.2"
+        versionCode = 1
+        versionName = "1.0.0"
 
         vectorDrawables {
             useSupportLibrary = true
