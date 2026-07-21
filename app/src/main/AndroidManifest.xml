@@ -15,6 +15,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LibreSudoku"
         tools:targetApi="tiramisu">
+
+        <!-- Android 16 (API 36): opt out of restricted-resizability on large screens to keep
+             portrait-only behavior. Temporary — has no effect once targetSdk reaches 37. -->
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+            android:value="true" />
+
         <activity
             android:name=".ui.app_crash.CrashActivity"
             android:exported="false"

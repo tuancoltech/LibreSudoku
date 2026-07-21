@@ -10,7 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import androidx.core.view.WindowCompat
+import com.easysoft.sudoku.ui.util.findActivity
 import com.materialkolor.DynamicMaterialTheme
 import com.materialkolor.PaletteStyle
 import com.materialkolor.rememberDynamicMaterialThemeState
@@ -25,6 +26,7 @@ fun LibreSudokuTheme(
     paletteStyle: PaletteStyle = PaletteStyle.TonalSpot,
     content: @Composable () -> Unit,
 ) {
+    val context = LocalContext.current
     var materialThemeState = rememberDynamicMaterialThemeState(
         seedColor = colorSeed,
         isDark = darkTheme,
@@ -34,8 +36,6 @@ fun LibreSudokuTheme(
 
     var colorScheme = materialThemeState.colorScheme
     if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        val context = LocalContext.current
-
         colorScheme = when {
             darkTheme && amoled -> dynamicDarkColorScheme(context).copy(
                 background = Color.Black,
@@ -46,7 +46,6 @@ fun LibreSudokuTheme(
             else -> dynamicLightColorScheme(context)
         }
     }
-    val systemUiController = rememberSystemUiController()
 
     materialThemeState = rememberDynamicMaterialThemeState(
         seedColor = colorSeed,
@@ -66,10 +65,11 @@ fun LibreSudokuTheme(
         typography = Typography,
         content = {
             SideEffect {
-                systemUiController.setSystemBarsColor(
-                    color = Color.Transparent,
-                    darkIcons = !darkTheme
-                )
+                val window = context.findActivity()?.window ?: return@SideEffect
+                WindowCompat.getInsetsController(window, window.decorView).apply {
+                    isAppearanceLightStatusBars = !darkTheme
+                    isAppearanceLightNavigationBars = !darkTheme
+                }
             }
 
             content()
