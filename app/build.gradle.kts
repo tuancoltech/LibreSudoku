@@ -12,12 +12,12 @@ plugins {
 
 android {
     namespace = "com.easysoft.sudoku"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.easysoft.sudoku"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
 
@@ -95,7 +95,6 @@ dependencies {
     testImplementation(libs.junit)
     implementation(libs.graphics.shape)
 
-    implementation(libs.accompanist.systemuicontroller)
     implementation(libs.accompanist.pager.indicators)
 
     implementation(libs.hilt)
